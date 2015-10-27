@@ -43,9 +43,9 @@ public class ChartLegendRenderer: ChartRendererBase
                 let entryCount = dataSet.entryCount
                 
                 // if we have a barchart with stacked bars
-                if (dataSet.isKindOfClass(BarChartDataSet) && (dataSet as! BarChartDataSet).isStacked)
+                if (dataSet is IBarChartDataSet && (dataSet as! IBarChartDataSet).isStacked)
                 {
-                    let bds = dataSet as! BarChartDataSet
+                    let bds = dataSet as! IBarChartDataSet
                     var sLabels = bds.stackLabels
                     
                     for (var j = 0; j < clrs.count && j < bds.stackSize; j++)
@@ -61,10 +61,10 @@ public class ChartLegendRenderer: ChartRendererBase
                         labels.append(bds.label)
                     }
                 }
-                else if (dataSet.isKindOfClass(PieChartDataSet))
+                else if (dataSet is IPieChartDataSet)
                 {
                     var xVals = data.xVals
-                    let pds = dataSet as! PieChartDataSet
+                    let pds = dataSet as! IPieChartDataSet
                     
                     for (var j = 0; j < clrs.count && j < entryCount && j < xVals.count; j++)
                     {
