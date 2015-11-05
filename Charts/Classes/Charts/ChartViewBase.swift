@@ -765,7 +765,7 @@ public class ChartViewBase: UIView, ChartDataProvider, ChartAnimatorDelegate
     /// - returns: the percentage the given value has of the total y-value sum
     public func percentOfTotal(val: Double) -> Double
     {
-        return val / _data.yValueSum * 100.0
+        return val / (_data as! PieChartData).yValueSum * 100.0
     }
     
     /// - returns: the ViewPortHandler of the chart that is responsible for the
