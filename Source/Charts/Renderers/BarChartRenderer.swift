@@ -310,7 +310,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 _barShadowRectBuffer.size.height = viewPortHandler.contentHeight
                 
                 context.setFillColor(dataSet.barShadowColor.cgColor)
-                context.fill(_barShadowRectBuffer)
+                fillRoundedIfNeeded(context: context, rect: _barShadowRectBuffer, corners: dataSet.barRoundingCorners)
             }
         }
 
@@ -334,7 +334,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 }
                 
                 context.setFillColor(dataSet.barShadowColor.cgColor)
-                context.fill(barRect)
+                fillRoundedIfNeeded(context: context, rect: barRect, corners: dataSet.barRoundingCorners)
             }
         }
         
@@ -369,14 +369,7 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
             
-            context.fill(barRect)
-            
-            if drawBorder
-            {
-                context.setStrokeColor(borderColor.cgColor)
-                context.setLineWidth(borderWidth)
-                context.stroke(barRect)
-            }
+            fillRoundedIfNeeded(context: context, rect: barRect, corners: dataSet.barRoundingCorners, drawBorder: drawBorder, borderLineWidth: borderWidth, borderColor: borderColor)
 
             // Create and append the corresponding accessibility element to accessibilityOrderedElements
             if let chart = dataProvider as? BarChartView
@@ -686,6 +679,41 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
         ChartUtils.drawText(context: context, text: value, point: CGPoint(x: xPos, y: yPos), align: align, attributes: [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: color])
     }
     
+    open func fillRoundedIfNeeded(context: CGContext, rect: CGRect, corners: UIRectCorner, drawBorder: Bool = false, borderLineWidth: CGFloat? = nil, borderColor: NSUIColor? = nil) {
+        guard let dataProvider = dataProvider else { return }
+
+        if dataProvider.isDrawRoundedBarEnabled
+        {
+            let cornerRadius = CGSize(width: rect.width / 2.0, height: rect.width / 2.0)
+            #if os(OSX)
+                let bezierPath = NSBezierPath(roundedRect: barRect, xRadius: cornerRadius.width, yRadius: cornerRadius.height)
+                context.addPath(bezierPath.cgPath)
+            #else
+                let bezierPath = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: cornerRadius)
+                context.addPath(bezierPath.cgPath)
+            #endif
+            context.fillPath()
+            
+            if let borderLineWidth = borderLineWidth, let borderColor = borderColor, drawBorder
+            {
+                bezierPath.lineWidth = borderLineWidth
+                borderColor.setStroke()
+                bezierPath.stroke()
+            }
+        }
+        else
+        {
+            context.fill(rect)
+            
+            if let borderLineWidth = borderLineWidth, let borderColor = borderColor, drawBorder
+            {
+                context.setStrokeColor(borderColor.cgColor)
+                context.setLineWidth(borderLineWidth)
+                context.stroke(rect)
+            }
+        }
+    }
+    
     open override func drawExtras(context: CGContext)
     {
         
@@ -748,10 +776,8 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 }
                 
                 prepareBarHighlight(x: e.x, y1: y1, y2: y2, barWidthHalf: barData.barWidth / 2.0, trans: trans, rect: &barRect)
-                
                 setHighlightDrawPos(highlight: high, barRect: barRect)
-                
-                context.fill(barRect)
+                fillRoundedIfNeeded(context: context, rect: barRect, corners: set.barRoundingCorners)
             }
         }
         

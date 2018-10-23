@@ -31,13 +31,15 @@ class BarChartViewController: DemoBaseViewController {
                         .saveToGallery,
                         .togglePinchZoom,
                         .toggleData,
-                        .toggleBarBorders]
+                        .toggleBarBorders,
+                        .toggleRoundedBarsAllCorners,
+                        .toggleRoundedBarsTopCorners]
         
         self.setup(barLineChartView: chartView)
         
         chartView.delegate = self
         
-        chartView.drawBarShadowEnabled = false
+        chartView.drawBarShadowEnabled = true
         chartView.drawValueAboveBarEnabled = false
         
         chartView.maxVisibleCount = 60
@@ -139,7 +141,24 @@ class BarChartViewController: DemoBaseViewController {
     }
     
     override func optionTapped(_ option: Option) {
-        super.handleOption(option, forChartView: chartView)
+        switch option {
+        case .toggleRoundedBarsAllCorners:
+            chartView.drawRoundedBarEnabled = true
+            
+            for set in chartView.data!.dataSets as! [BarChartDataSet] {
+                set.barRoundingCorners = .allCorners
+            }
+            
+        case .toggleRoundedBarsTopCorners:
+            chartView.drawRoundedBarEnabled = true
+            
+            for set in chartView.data!.dataSets as! [BarChartDataSet] {
+                set.barRoundingCorners = [.topLeft, .topRight]
+            }
+            
+        default:
+            super.handleOption(option, forChartView: chartView)
+        }
     }
     
     // MARK: - Actions

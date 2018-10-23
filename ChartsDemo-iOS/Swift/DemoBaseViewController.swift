@@ -45,6 +45,8 @@ enum Option {
     case toggleYLabels
     case toggleRotate
     case toggleHighlightCircle
+    case toggleRoundedBarsAllCorners
+    case toggleRoundedBarsTopCorners
     
     var label: String {
         switch self {
@@ -83,6 +85,9 @@ enum Option {
         case .toggleYLabels: return "Toggle Y-Labels"
         case .toggleRotate: return "Toggle Rotate"
         case .toggleHighlightCircle: return "Toggle highlight circle"
+        // BarChart
+        case .toggleRoundedBarsAllCorners: return "All Corners Rounded"
+        case .toggleRoundedBarsTopCorners: return "Top Corners Rounded"
         }
     }
 }
