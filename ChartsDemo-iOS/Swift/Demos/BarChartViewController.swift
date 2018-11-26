@@ -63,15 +63,13 @@ class BarChartViewController: DemoBaseViewController {
         leftAxis.valueFormatter = DefaultAxisValueFormatter(formatter: leftAxisFormatter)
         leftAxis.labelPosition = .outsideChart
         leftAxis.spaceTop = 0.15
-        leftAxis.axisMinimum = 0 // FIXME: HUH?? this replaces startAtZero = YES
-        
+
         let rightAxis = chartView.rightAxis
         rightAxis.enabled = true
         rightAxis.labelFont = .systemFont(ofSize: 10)
         rightAxis.labelCount = 8
         rightAxis.valueFormatter = leftAxis.valueFormatter
         rightAxis.spaceTop = 0.15
-        rightAxis.axisMinimum = 0
         
         let l = chartView.legend
         l.horizontalAlignment = .left
@@ -111,8 +109,7 @@ class BarChartViewController: DemoBaseViewController {
         let start = 1
         
         let yVals = (start..<start+count+1).map { (i) -> BarChartDataEntry in
-            let mult = range + 1
-            let val = Double(arc4random_uniform(mult))
+            let val = Double.random(in: -200...200)
             if arc4random_uniform(100) < 25 {
                 return BarChartDataEntry(x: Double(i), y: val, icon: UIImage(named: "icon"))
             } else {
