@@ -41,7 +41,9 @@ class StackedBarChartViewController: DemoBaseViewController {
                         .togglePinchZoom,
                         .toggleAutoScaleMinMax,
                         .toggleData,
-                        .toggleBarBorders]
+                        .toggleBarBorders,
+                        .toggleRoundedBarsAllCorners,
+                        .toggleRoundedBarsTopCorners]
         
         
         chartView.delegate = self
@@ -49,7 +51,7 @@ class StackedBarChartViewController: DemoBaseViewController {
         chartView.chartDescription?.enabled = false
         
         chartView.maxVisibleCount = 40
-        chartView.drawBarShadowEnabled = false
+        chartView.drawBarShadowEnabled = true
         chartView.drawValueAboveBarEnabled = false
         chartView.highlightFullBarEnabled = false
         

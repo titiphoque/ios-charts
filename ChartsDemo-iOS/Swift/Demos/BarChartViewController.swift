@@ -138,24 +138,7 @@ class BarChartViewController: DemoBaseViewController {
     }
     
     override func optionTapped(_ option: Option) {
-        switch option {
-        case .toggleRoundedBarsAllCorners:
-            chartView.drawRoundedBarEnabled = true
-            
-            for set in chartView.data!.dataSets as! [BarChartDataSet] {
-                set.barRoundingCorners = .allCorners
-            }
-            
-        case .toggleRoundedBarsTopCorners:
-            chartView.drawRoundedBarEnabled = true
-            
-            for set in chartView.data!.dataSets as! [BarChartDataSet] {
-                set.barRoundingCorners = [.topLeft, .topRight]
-            }
-            
-        default:
-            super.handleOption(option, forChartView: chartView)
-        }
+        super.handleOption(option, forChartView: chartView)
     }
     
     // MARK: - Actions

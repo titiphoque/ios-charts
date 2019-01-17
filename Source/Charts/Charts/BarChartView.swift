@@ -167,7 +167,7 @@ open class BarChartView: BarLineChartViewBase, BarChartDataProvider
     }
     
     /// if set to true, a rounded rectangle with the corners is drawn on each bar
-    open var drawRoundedBarEnabled: Bool
+    @objc open var drawRoundedBarEnabled: Bool
         {
         get { return _drawRoundedBarEnabled }
         set

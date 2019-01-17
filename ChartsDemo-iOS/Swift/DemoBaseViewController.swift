@@ -86,8 +86,8 @@ enum Option {
         case .toggleRotate: return "Toggle Rotate"
         case .toggleHighlightCircle: return "Toggle highlight circle"
         // BarChart
-        case .toggleRoundedBarsAllCorners: return "All Corners Rounded"
-        case .toggleRoundedBarsTopCorners: return "Top Corners Rounded"
+        case .toggleRoundedBarsAllCorners: return "Toggle All Corners Rounded"
+        case .toggleRoundedBarsTopCorners: return "Toggle Top Corners Rounded"
         }
     }
 }
@@ -172,6 +172,23 @@ class DemoBaseViewController: UIViewController, ChartViewDelegate {
                 }
             }
             chartView.setNeedsDisplay()
+            
+        case .toggleRoundedBarsAllCorners:
+            guard let barChartView = chartView as? BarChartView else { return }
+            barChartView.drawRoundedBarEnabled = !barChartView.drawRoundedBarEnabled
+            
+            for set in chartView.data!.dataSets as! [BarChartDataSet] {
+                set.barRoundingCorners = .allCorners
+            }
+            
+        case .toggleRoundedBarsTopCorners:
+            guard let barChartView = chartView as? BarChartView else { return }
+            barChartView.drawRoundedBarEnabled = !barChartView.drawRoundedBarEnabled
+            
+            for set in chartView.data!.dataSets as! [BarChartDataSet] {
+                set.barRoundingCorners = [.topLeft, .topRight]
+            }
+            
         default:
             break
         }
