@@ -950,12 +950,14 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 stackLabel = nil
             }
 
-            elementValueText = dataSet.valueFormatter?.stringForValue(
-                vals[idx % stackSize],
-                entry: e,
-                dataSetIndex: dataSetIndex,
-                viewPortHandler: viewPortHandler) ?? "\(e.y)"
-
+            if (idx % stackSize) < (vals.count - 1) {
+                elementValueText = dataSet.valueFormatter?.stringForValue(
+                    vals[idx % stackSize],
+                    entry: e,
+                    dataSetIndex: dataSetIndex,
+                    viewPortHandler: viewPortHandler) ?? "\(e.y)"
+            }
+            
             if let stackLabel = stackLabel {
                 elementValueText = stackLabel + " \(elementValueText)"
             } else {
