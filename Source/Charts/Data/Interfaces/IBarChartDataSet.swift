@@ -37,6 +37,9 @@ public protocol IBarChartDataSet: IBarLineScatterCandleBubbleChartDataSet
     #if !os(OSX)
     /// the option rounding bar corners
     var barRoundingCorners: UIRectCorner { get set }
+    
+    /// the percentage of rounded. 0 mean no radius and 1 mean full rounded
+    var barRoundingCornerRadius: CGFloat { get set }
     #endif
 
     /// the alpha value (transparency) that is used for drawing the highlight indicator bar. min = 0.0 (fully transparent), max = 1.0 (fully opaque)

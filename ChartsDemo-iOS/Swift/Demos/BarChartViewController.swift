@@ -41,6 +41,7 @@ class BarChartViewController: DemoBaseViewController {
         
         chartView.drawBarShadowEnabled = true
         chartView.drawValueAboveBarEnabled = false
+        chartView.drawRoundedBarEnabled = true
         
         chartView.maxVisibleCount = 60
         
@@ -127,6 +128,9 @@ class BarChartViewController: DemoBaseViewController {
             set1 = BarChartDataSet(values: yVals, label: "The year 2017")
             set1.colors = ChartColorTemplates.material()
             set1.drawValuesEnabled = false
+            
+            set1.barRoundingCorners = [.topLeft, .topRight]
+            set1.barRoundingCornerRadius = 0.5
             
             let data = BarChartData(dataSet: set1)
             data.setValueFont(UIFont(name: "HelveticaNeue-Light", size: 10)!)

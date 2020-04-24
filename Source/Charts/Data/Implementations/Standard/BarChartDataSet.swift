@@ -149,6 +149,9 @@ open class BarChartDataSet: BarLineScatterCandleBubbleChartDataSet, IBarChartDat
     #if !os(OSX)
     /// the option rounding bar corners
     open var barRoundingCorners: UIRectCorner = .allCorners
+    
+    /// the percentage of rounded. 0 mean no radius and 1 mean full rounded. Default is 1
+    open var barRoundingCornerRadius: CGFloat = 1
     #endif
 
     /// the alpha value (transparency) that is used for drawing the highlight indicator bar. min = 0.0 (fully transparent), max = 1.0 (fully opaque)
