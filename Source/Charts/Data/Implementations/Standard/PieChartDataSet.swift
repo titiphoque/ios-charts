@@ -12,7 +12,7 @@
 import Foundation
 import CoreGraphics
 
-open class PieChartDataSet: ChartDataSet, IPieChartDataSet
+open class PieChartDataSet: ChartDataSet, PieChartDataSetProtocol
 {
     @objc(PieChartValuePosition)
     public enum ValuePosition: Int
@@ -33,9 +33,9 @@ open class PieChartDataSet: ChartDataSet, IPieChartDataSet
         initialize()
     }
 
-    public override init(values: [ChartDataEntry]?, label: String?)
+    public override init(entries: [ChartDataEntry], label: String)
     {
-        super.init(values: values, label: label)
+        super.init(entries: entries, label: label)
         initialize()
     }
 
@@ -59,16 +59,11 @@ open class PieChartDataSet: ChartDataSet, IPieChartDataSet
         }
         set
         {
-            var space = newValue
-            if space > 20.0
-            {
-                space = 20.0
+            switch newValue {
+            case ..<0.0: _sliceSpace = 0.0
+            case 20.0...: _sliceSpace = 20.0
+            default: _sliceSpace = newValue
             }
-            if space < 0.0
-            {
-                space = 0.0
-            }
-            _sliceSpace = space
         }
     }
 
@@ -83,6 +78,9 @@ open class PieChartDataSet: ChartDataSet, IPieChartDataSet
 
     /// When valuePosition is OutsideSlice, indicates line color
     open var valueLineColor: NSUIColor? = NSUIColor.black
+
+    /// When valuePosition is OutsideSlice and enabled, line will have the same color as the slice
+    open var useValueColorForLine: Bool = false
 
     /// When valuePosition is OutsideSlice, indicates line width
     open var valueLineWidth: CGFloat = 1.0

@@ -27,27 +27,18 @@ open class DataApproximator: NSObject
         var keep = [Bool](repeating: false, count: points.count)
         
         // first and last always stay
-        keep[0] = true
-        keep[points.count - 1] = true
+        keep[points.startIndex] = true
+        keep[points.endIndex - 1] = true
         
         // first and last entry are entry point to recursion
         reduceWithDouglasPeuker(points: points,
                                 tolerance: tolerance,
-                                start: 0,
-                                end: points.count - 1,
+                                start: points.startIndex,
+                                end: points.endIndex - 1,
                                 keep: &keep)
         
         // create a new array with series, only take the kept ones
-        var reducedEntries = [CGPoint]()
-        for i in 0 ..< points.count
-        {
-            if keep[i]
-            {
-                reducedEntries.append(points[i])
-            }
-        }
-        
-        return reducedEntries
+        return zip(keep, points).compactMap { $0 ? nil : $1 }
     }
 
     /// apply the Douglas-Peucker-Reduction to an array of `CGPoint`s with a given tolerance

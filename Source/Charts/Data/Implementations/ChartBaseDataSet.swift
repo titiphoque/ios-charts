@@ -13,7 +13,7 @@ import Foundation
 import CoreGraphics
 
 
-open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
+open class ChartBaseDataSet: NSObject, ChartDataSetProtocol, NSCopying
 {
     public required override init()
     {
@@ -21,16 +21,16 @@ open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
         
         // default color
         colors.append(NSUIColor(red: 140.0/255.0, green: 234.0/255.0, blue: 255.0/255.0, alpha: 1.0))
-        valueColors.append(NSUIColor.black)
+        valueColors.append(.labelOrBlack)
     }
     
-    @objc public init(label: String?)
+    @objc public init(label: String)
     {
         super.init()
         
         // default color
         colors.append(NSUIColor(red: 140.0/255.0, green: 234.0/255.0, blue: 255.0/255.0, alpha: 1.0))
-        valueColors.append(NSUIColor.black)
+        valueColors.append(.labelOrBlack)
         
         self.label = label
     }
@@ -253,14 +253,7 @@ open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
     ///   - alpha: alpha to apply to the set `colors`
     @objc open func setColors(_ colors: [NSUIColor], alpha: CGFloat)
     {
-        var colorsWithAlpha = colors
-        
-        for i in 0 ..< colorsWithAlpha.count
-        {
-            colorsWithAlpha[i] = colorsWithAlpha[i] .withAlphaComponent(alpha)
-        }
-        
-        self.colors = colorsWithAlpha
+        self.colors = colors.map { $0.withAlphaComponent(alpha) }
     }
     
     /// Sets colors with a specific alpha value.
@@ -278,35 +271,10 @@ open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
     
     /// `true` if value highlighting is enabled for this dataset
     open var isHighlightEnabled: Bool { return highlightEnabled }
-    
+        
     /// Custom formatter that is used instead of the auto-formatter if set
-    internal var _valueFormatter: IValueFormatter?
-    
-    /// Custom formatter that is used instead of the auto-formatter if set
-    open var valueFormatter: IValueFormatter?
-    {
-        get
-        {
-            if needsFormatter
-            {
-                return ChartUtils.defaultValueFormatter()
-            }
-            
-            return _valueFormatter
-        }
-        set
-        {
-            if newValue == nil { return }
-            
-            _valueFormatter = newValue
-        }
-    }
-    
-    open var needsFormatter: Bool
-    {
-        return _valueFormatter == nil
-    }
-    
+    open lazy var valueFormatter: ValueFormatter = DefaultValueFormatter()
+
     /// Sets/get a single color for value text.
     /// Setting the color clears the colors array and adds a single color.
     /// Getting will return the first color in the array.
@@ -336,6 +304,9 @@ open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
     
     /// the font for the value-text labels
     open var valueFont: NSUIFont = NSUIFont.systemFont(ofSize: 7.0)
+    
+    /// The rotation angle (in degrees) for value-text labels
+    open var valueLabelAngle: CGFloat = CGFloat(0.0)
     
     /// The form to draw for this dataset in the legend.
     open var form = Legend.Form.default
@@ -409,14 +380,9 @@ open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
     
     open override var debugDescription: String
     {
-        var desc = description + ":"
-        
-        for i in 0 ..< self.entryCount
-        {
-            desc += "\n" + (self.entryForIndex(i)?.description ?? "")
+        return (0..<entryCount).reduce(description + ":") {
+            "\($0)\n\(self.entryForIndex($1)?.description ?? "")"
         }
-        
-        return desc
     }
     
     // MARK: - NSCopying
@@ -430,7 +396,7 @@ open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
         copy.label = label
         copy.axisDependency = axisDependency
         copy.highlightEnabled = highlightEnabled
-        copy._valueFormatter = _valueFormatter
+        copy.valueFormatter = valueFormatter
         copy.valueFont = valueFont
         copy.form = form
         copy.formSize = formSize
@@ -438,7 +404,7 @@ open class ChartBaseDataSet: NSObject, IChartDataSet, NSCopying
         copy.formLineDashPhase = formLineDashPhase
         copy.formLineDashLengths = formLineDashLengths
         copy.drawValuesEnabled = drawValuesEnabled
-        copy.drawValuesEnabled = drawValuesEnabled
+        copy.drawIconsEnabled = drawIconsEnabled
         copy.iconsOffset = iconsOffset
         copy.visible = visible
         
