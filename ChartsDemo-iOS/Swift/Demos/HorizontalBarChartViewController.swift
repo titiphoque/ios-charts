@@ -42,6 +42,7 @@ class HorizontalBarChartViewController: DemoBaseViewController {
         
         chartView.drawBarShadowEnabled = false
         chartView.drawValueAboveBarEnabled = true
+        chartView.drawRoundedBarEnabled = true
         
         chartView.maxVisibleCount = 60
         
@@ -104,6 +105,7 @@ class HorizontalBarChartViewController: DemoBaseViewController {
         
         let set1 = BarChartDataSet(entries: yVals, label: "DataSet")
         set1.drawIconsEnabled = false
+        set1.barRoundingCorners = [.topRight, .bottomRight]
         
         let data = BarChartData(dataSet: set1)
         data.setValueFont(UIFont(name:"HelveticaNeue-Light", size:10)!)

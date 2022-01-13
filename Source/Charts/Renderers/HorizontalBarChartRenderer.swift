@@ -231,11 +231,35 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 _barShadowRectBuffer.size.width = viewPortHandler.contentWidth
                 
                 context.setFillColor(dataSet.barShadowColor.cgColor)
-                context.fill(_barShadowRectBuffer)
+                fillRoundedIfNeeded(context: context, rect: _barShadowRectBuffer, dataSet: dataSet, stackIndex: -1)
             }
         }
         
         let buffer = _buffers[index]
+        
+        // draw the bar shadow before the values
+        if dataProvider.isDrawBarShadowEnabled
+        {
+            for j in stride(from: 0, to: buffer.rects.count, by: 1)
+            {
+                let barRect = buffer.rects[j]
+                
+                if (!viewPortHandler.isInBoundsLeft(barRect.origin.x + barRect.size.width))
+                {
+                    continue
+                }
+                
+                if (!viewPortHandler.isInBoundsRight(barRect.origin.x))
+                {
+                    break
+                }
+                
+                context.setFillColor(dataSet.barShadowColor.cgColor)
+                
+                let y = (dataSet.entryForIndex(j) as? BarChartDataEntry)?.y
+                fillRoundedIfNeeded(context: context, rect: barRect, dataSet: dataSet, yValue: y, stackIndex: -1)
+            }
+        }
         
         let isSingleColor = dataSet.colors.count == 1
         
@@ -268,7 +292,16 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 context.setFillColor(dataSet.color(atIndex: j).cgColor)
             }
 
-            context.fill(barRect)
+            let y = (dataSet.entryForIndex(j) as? BarChartDataEntry)?.y
+            
+            fillRoundedIfNeeded(context: context,
+                                rect: barRect,
+                                dataSet: dataSet,
+                                drawBorder: drawBorder,
+                                borderLineWidth: borderWidth,
+                                borderColor: borderColor,
+                                yValue: y,
+                                stackIndex: j)
 
             if drawBorder
             {
@@ -628,5 +661,80 @@ open class HorizontalBarChartRenderer: BarChartRenderer
     internal override func setHighlightDrawPos(highlight high: Highlight, barRect: CGRect)
     {
         high.setDraw(x: barRect.midY, y: barRect.origin.x + barRect.size.width)
+    }
+    
+    open override func fillRoundedIfNeeded(context: CGContext,
+                                  rect: CGRect,
+                                  dataSet: IBarChartDataSet,
+                                  drawBorder: Bool = false,
+                                  borderLineWidth: CGFloat? = nil,
+                                  borderColor: NSUIColor? = nil,
+                                  yValue: Double? = nil,
+                                  stackIndex: Int = 0) {
+        guard let dataProvider = dataProvider else { return }
+
+        let isStacked = stackIndex < 0 ? false : dataSet.isStacked
+        let stackSize = isStacked ? dataSet.stackSize : 1
+        let index = max(stackIndex, 0)
+        let isFirstOfStack = (index % stackSize) == 0
+        let isLastOfStack = (index % stackSize) == (stackSize - 1)
+        
+        if dataProvider.isDrawRoundedBarEnabled, isFirstOfStack || isLastOfStack
+        {
+            let corners: UIRectCorner = dataSet.barRoundingCorners
+            let cornerRadius = CGSize(width: dataSet.barRoundingCornerRadius * (rect.height / 2.0),
+                                      height: dataSet.barRoundingCornerRadius * (rect.height / 2.0))
+            
+            #if os(OSX)
+                let bezierPath = NSBezierPath(roundedRect: rect, xRadius: cornerRadius.width, yRadius: cornerRadius.height)
+                context.addPath(bezierPath.cgPath)
+            #else
+                var mirrorCorners = corners
+                if let yValue = yValue, yValue < 0, corners != .allCorners {
+                    if mirrorCorners.contains(.topLeft) {
+                        mirrorCorners.remove(.topLeft)
+                        mirrorCorners.insert(.bottomLeft)
+                    }
+                    
+                    if mirrorCorners.contains(.topRight) {
+                        mirrorCorners.remove(.topRight)
+                        mirrorCorners.insert(.bottomRight)
+                    }
+                }
+            
+                if isStacked {
+                    if isFirstOfStack {
+                        mirrorCorners.remove(.topLeft)
+                        mirrorCorners.remove(.topRight)
+                    }
+                    if isLastOfStack {
+                        mirrorCorners.remove(.bottomLeft)
+                        mirrorCorners.remove(.bottomRight)
+                    }
+                }
+            
+                let bezierPath = UIBezierPath(roundedRect: rect, byRoundingCorners: mirrorCorners, cornerRadii: cornerRadius)
+                context.addPath(bezierPath.cgPath)
+            #endif
+            context.fillPath()
+            
+            if let borderLineWidth = borderLineWidth, let borderColor = borderColor, drawBorder
+            {
+                bezierPath.lineWidth = borderLineWidth
+                borderColor.setStroke()
+                bezierPath.stroke()
+            }
+        }
+        else
+        {
+            context.fill(rect)
+            
+            if let borderLineWidth = borderLineWidth, let borderColor = borderColor, drawBorder
+            {
+                context.setStrokeColor(borderColor.cgColor)
+                context.setLineWidth(borderLineWidth)
+                context.stroke(rect)
+            }
+        }
     }
 }
